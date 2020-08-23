@@ -1,5 +1,4 @@
 import React from "react";
-
 const Event = (props) => {
     const handleClickDelete = (id) => {
         const result = window.confirm(`イベント(id = ${id})を本当に削除してもよろしいですか？`)
