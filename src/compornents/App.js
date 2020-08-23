@@ -1,7 +1,7 @@
 import React,{useState,useReducer} from "react";
 import reducer from "../reducers/index"
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import Event from "./Event";
 const App = () => {
   const [state,dispatch] = useReducer(reducer,[])
   const [title,setTitle] = useState("")
@@ -18,7 +18,16 @@ const App = () => {
     setTitle("")
     setBody("")
   }
-  console.log(state)
+  const deleteAllevents = (e) => {
+    e.preventDefault()
+    const result = window.confirm("全てのイベントを削除してもよろしいですか？")
+    if(result){
+      dispatch({
+        type: "DELETE_ALL_EVENTS"
+      })
+    }
+  }
+
   return (
     <div className="container-fluid">
       <h4>イベント作成フォーム</h4>
@@ -32,9 +41,14 @@ const App = () => {
           <label htmlFor="formEventBody">ボディー</label>
           <textarea className="form-control" id="formEventBody" value={body} onChange={e => setBody(e.target.value)}/>
         </div>
-
-        <button className="btn btn-primary" onClick={addEvent}>イベントを作成する</button>
-        <button className="btn btn-danger">全てのイベントを削除する</button>
+        {/* titleまたは、bodyの入力がなかった場合は、イベントを作成しない様にdisabledで制御する */}
+        <button className="btn btn-primary" onClick={addEvent} disabled = {title === "" || body === ""}>
+          イベントを作成する
+        </button>
+        {/* イベントの配列（state.length）がからの場合は、イベントを削除できない様にdisabledで制御する */}
+        <button className="btn btn-danger" onClick={deleteAllevents} disabled = {state.length === 0}>
+          全てのイベントを削除する
+        </button>
       </form>
 
       <h4>イベント一覧</h4>
@@ -47,7 +61,13 @@ const App = () => {
             <th></th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {state.map((event,index) => {
+            return (
+              <Event key = {index} event = {event} dispatch={dispatch}/>
+            )
+          })}
+        </tbody>
       </table>
     </div>
   );
