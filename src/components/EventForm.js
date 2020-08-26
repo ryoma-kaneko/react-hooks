@@ -1,6 +1,7 @@
 import React,{useState,useContext} from "react";
 import AppContext from "../contexts/AppContexts"
-import {CREATE_EVENT,DELETE_ALL_EVENT} from "../actions/index"
+import {CREATE_EVENT,DELETE_ALL_EVENT,ADD_OPERATION_LOG,DELETE_ALL_OPERATION_LOGS} from "../actions/index";
+import {timeCurrentIso8601} from "../utils"
 const EventFrom = () => {
     const {state,dispatch} = useContext(AppContext)
     const [title, setTilte] = useState("")
@@ -13,6 +14,11 @@ const EventFrom = () => {
             title,
             body
         })
+        dispatch({
+            type: ADD_OPERATION_LOG,
+            description: "イベントを作成しました。",
+            operatedAt: timeCurrentIso8601()
+        })
         setTilte("")
         setBody("")
     }
@@ -21,6 +27,20 @@ const EventFrom = () => {
         const result = window.confirm("全てのイベントを削除しますか？")
         if (result) {
             dispatch({ type: DELETE_ALL_EVENT });
+            dispatch({
+                type: ADD_OPERATION_LOG,
+                description: "全てのイベントを削除しました。",
+                operatedAt: timeCurrentIso8601()
+            })
+        }
+    }
+    const deleteAllOperationLogs = (e) => {
+        e.preventDefault()
+        const result = window.confirm("全ての操作ログを削除してもいいですか")
+        if(result){
+            dispatch({
+                type: DELETE_ALL_OPERATION_LOGS
+            })
         }
     }
     return (
@@ -50,7 +70,9 @@ const EventFrom = () => {
                     <button className="btn btn-primary" onClick={addEvent} disabled={title === "" || body === ""}>
                         イベントを作成する
                     </button>
-                    <button className="btn btn-danger" onClick={deleteAllEvents} disabled={state.length === 0}>全てのイベントを削除する</button>
+                    <button className="btn btn-danger" onClick={deleteAllEvents} disabled={state.events.length === 0}>全てのイベントを削除する</button>
+                    <button className="btn btn-danger" onClick={deleteAllOperationLogs} disabled={state.operationLogs.length === 0}>全ての操作ログを削除する</button>
+
                 </form>
         </>
     )
